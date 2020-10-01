@@ -1,142 +1,109 @@
-import pyttsx3
+import pyttsx3 #pip install pyttsx3
+import speech_recognition as sr #pip install speechRecognition
 import datetime
-import speech_recognition as sr
-import wikipedia
+import wikipedia #pip install wikipedia
 import webbrowser
 import os
-from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
-import time
+import smtplib
+
 engine = pyttsx3.init('sapi5')
 voices = engine.getProperty('voices')
-engine.setProperty('voice',voices[0].id)
+# print(voices[1].id)
+engine.setProperty('voice', voices[0].id)
 
-
-def __init__(username ,password):
-    driver = webdriver.Chrome("C:\\Program Files\\Google\\Chrome\\Application\\chromedriver.exe")
-    driver.get("https://www.instagram.com/accounts/login/?hl=en")
-    time.sleep(3)
-    username_textbox = driver.find_element_by_xpath('/html/body/div[1]/section/main/div/article/div/div[1]/div/form/div[2]/div/label/input').send_keys(username)
-    password_textbox = driver.find_element_by_xpath('/html/body/div[1]/section/main/div/article/div/div[1]/div/form/div[3]/div/label/input').send_keys(password)
-    button = driver.find_element_by_xpath('/html/body/div[1]/section/main/div/article/div/div[1]/div/form/div[4]')
-    button.click()
-    time.sleep(5)
 
 def speak(audio):
     engine.say(audio)
     engine.runAndWait()
 
 
-def wishme():
+def wishMe():
     hour = int(datetime.datetime.now().hour)
     if hour>=0 and hour<12:
-        speak("Good Morning Mr Ashutosh  I am Jarvis Speed terabyte Memory one zettabyte , how may i help you" ) #you can change your name if you want
-    elif hour>=12 and hour<18:
-            speak("Good Afternoon Mr Ashutosh  I am Jarvis Speed terabyte Memory one zettabyte , how may i help you")
-    else:
-        speak("Good Evening Mr Ashutosh  I am Jarvis Speed terabyte Memory one zettabyte , how may i help you")
+        speak("Good Morning!")
 
-def takecommand():
-    r=sr.Recognizer()
+    elif hour>=12 and hour<18:
+        speak("Good Afternoon!")   
+
+    else:
+        speak("Good Evening!")  
+
+    speak("I am Jarvis Sir. Please tell me how may I help you")       
+
+def takeCommand():
+    #It takes microphone input from the user and returns string output
+
+    r = sr.Recognizer()
     with sr.Microphone() as source:
-        print("listening")
-        r.pause_threshold=1
+        print("Listening...")
+        r.pause_threshold = 1
         audio = r.listen(source)
 
     try:
-        print("recognizing...")
-        query = r.recognize_google(audio,language='en-in') #here we will use google assistant if it failed to recognize
-        print(f"user said: {query}\n")
-    except exceptions as e:
-        
-        print("please say it again")
-    
+        print("Recognizing...")    
+        query = r.recognize_google(audio, language='en-in')
+        print(f"User said: {query}\n")
+
+    except Exception as e:
+        # print(e)    
+        print("Say that again please...")  
         return "None"
-    
     return query
 
-    
+def sendEmail(to, content):
+    server = smtplib.SMTP('smtp.gmail.com', 587)
+    server.ehlo()
+    server.starttls()
+    server.login('youremail@gmail.com', 'your-password')
+    server.sendmail('youremail@gmail.com', to, content)
+    server.close()
 
-if __name__== "__main__":
-    wishme()
+if __name__ == "__main__":
+    wishMe()
     while True:
-        query = takecommand().lower()
+    # if 1:
+        query = takeCommand().lower()
+
+        # Logic for executing tasks based on query
         if 'wikipedia' in query:
-            query = query.replace("wikipedia","")
-            results=wikipedia.summary(query, sentences=2)
-            speak("according to wikipedia") 
+            speak('Searching Wikipedia...')
+            query = query.replace("wikipedia", "")
+            results = wikipedia.summary(query, sentences=2)
+            speak("According to Wikipedia")
             print(results)
             speak(results)
-        
 
         elif 'open youtube' in query:
-            print("opening youtube")
-            speak("opening youtube")
-            webbrowser.open('www.youtube.com')
+            webbrowser.open("youtube.com")
 
-        elif'who made you' in query:
-             speak("i am jarvis and i am made by ashutosh mishra sir you can say thanks if you want to say me")
+        elif 'open google' in query:
+            webbrowser.open("google.com")
 
-        elif 'open swiggy' in query:
-            print("opening swiggy ")
-            speak("opening swiggy thanks for using us")
-            webbrowser.open('www.swiggy.com')
-            
-        elif "open google" in query:
-            speak("opening google")
-            webbrowser.open('www.google.com')
-        elif "order food" in query:
-            order1=speak("from where you need to order")
-            query = takecommand().lower()
-            if order1 == 'swiggy':
-                speak('ordering food from swiggy thank you sir')
-                webbrowser.open('https://www.swiggy.com/mumbai')
-            else:
-                speak("ordering food from zomato")
-                webbrowser.open('https://www.zomato.com/akola?city_id=11434')
+        elif 'open stackoverflow' in query:
+            webbrowser.open("stackoverflow.com")   
 
-        elif "play music" in query:
-            speak("playing music")
-            music = 'C:\\Users\\ashu\\Desktop\\desktop\\ext\\songs' #directory towards your songs
-            songs = os.listdir(music)
-            os.startfile(os.path.join(music,songs[5]))
-        elif "the time" in query:
-            stime= datetime.datetime.now().strftime("%H:%M:%S")
-            speak(f"Sir the time right now is {stime}")
 
-        elif "quit" in query:
-            speak("Thanks for using it Hope you like the experience")
-            exit()
+        elif 'play music' in query:
+            music_dir = 'D:\\Non Critical\\songs\\Favorite Songs2' #Your Music Directory
+            songs = os.listdir(music_dir)
+            print(songs)    
+            os.startfile(os.path.join(music_dir, songs[0]))
 
-        elif " instagram" in query:
-            speak("opening instagram stay tuned")
-            __init__("","") #here enter your username of instagram and in second the password
+        elif 'the time' in query:
+            strTime = datetime.datetime.now().strftime("%H:%M:%S")    
+            speak(f"Sir, the time is {strTime}")
 
-        elif " facebook" in query:  
-            speak("Opening facebook")
-            driver = webdriver.Chrome("C:\\Program Files\\Google\\Chrome\\Application\\chromedriver.exe")
-            driver.get("https://www.facebook.com/")
-            time.sleep(3)
-            usernametxt = driver.find_element_by_id("email").send_keys("") #enter your facebook username
-            passwordtxt = driver.find_element_by_id("pass").send_keys("") #enter your facebook password
-            time.sleep(2)
-            butt= driver.find_element_by_id("u_0_b")
-            butt.click() 
-        elif " movie" in query:
-             speak("playing your favourite movie ")
-             movie = 'C:\\Users\\ashu\\Desktop\\chichore.mkv' #enter the file location of your movie location
-             os.startfile(movie)
-            
-       
-        
-        
-            
+        elif 'open code' in query:
+            codePath = "C:\\Users\\Rudra Vyas\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe"
+            os.startfile(codePath)
 
-    
-            
-            
-        
-        
-        
-        
-    
+        elif 'email to harry' in query:
+            try:
+                speak("What should I say?")
+                content = takeCommand()
+                to = "rudrayourEmail@gmail.com"    
+                sendEmail(to, content)
+                speak("Email has been sent!")
+            except Exception as e:
+                print(e)
+                speak("Sorry my friend harry bhai. I am not able to send this email")
